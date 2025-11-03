@@ -30,6 +30,8 @@ class Texture : public dr4::Texture {
     Draw( const dr4::Rectangle& rect ) override final;
     void
     Draw( const dr4::Text& text ) override final;
+    virtual void
+    Draw( const Image& img, const Vec2f& pos ) override final;
     void
     Draw( const dr4::Texture& texture, const dr4::Vec2f& pos ) override final;
 

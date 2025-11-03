@@ -4,4 +4,4 @@
 	branch = dev
 [submodule "interface"]
 	path = interface
-	url = https://github.com/random-username-here/mipt-ded-zemax.git
+	url = https://github.com/random-username-herez/mipt-ded-zemax.git

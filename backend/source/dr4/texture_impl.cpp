@@ -1,8 +1,10 @@
 #include "dr4/texture_impl.hpp"
+#include "dr4/img_impl.hpp"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Transform.hpp>
 
 void
 dr4::impl::Texture::SetSize( dr4::Vec2f size )
@@ -56,6 +58,18 @@ dr4::impl::Texture::Draw( const dr4::Text& text )
     sf_text.setString( text.text );
 
     impl_.draw( sf_text );
+}
+
+void
+dr4::impl::Texture::Draw( const dr4::Image& img, const dr4::Vec2f& pos )
+{
+    const dr4::impl::Image& my_img = dynamic_cast<const dr4::impl::Image&>( img );
+
+    sf::Transform transform = sf::Transform::Identity;
+
+    transform.translate( { pos.x, pos.y } );
+
+    impl_.draw( my_img.impl_, transform );
 }
 
 void

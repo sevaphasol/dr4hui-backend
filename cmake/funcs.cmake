@@ -7,7 +7,7 @@ endfunction()
 #==============================================================================
 
 function( setup_interface )
-	add_subdirectory( interface )
+	add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/interface )
 endfunction()
 
 #==============================================================================

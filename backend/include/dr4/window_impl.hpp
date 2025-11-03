@@ -38,6 +38,9 @@ class Window : public dr4::Window {
     void
     Display() override final;
 
+    dr4::Image*
+    CreateImage() override final;
+
     dr4::Texture*
     CreateTexture() override final;
 
