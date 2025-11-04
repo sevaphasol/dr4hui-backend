@@ -1,4 +1,5 @@
 #include "dr4/window_impl.hpp"
+#include "dr4/img_impl.hpp"
 #include "dr4/texture.hpp"
 #include "dr4/texture_impl.hpp"
 
@@ -73,10 +74,16 @@ dr4::impl::Window::Display()
     impl_.display();
 }
 
+dr4::Image*
+dr4::impl::Window::CreateImage()
+{
+    return new dr4::impl::Image();
+}
+
 dr4::Texture*
 dr4::impl::Window::CreateTexture()
 {
-    return new Texture();
+    return new dr4::impl::Texture();
 }
 
 std::optional<dr4::Event>

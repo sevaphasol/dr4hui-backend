@@ -12,12 +12,11 @@ namespace impl {
 
 class Window;
 
-class Image : dr4::Image {
+class Image : public dr4::Image {
     friend dr4::impl::Texture;
 
   public:
-    Image( unsigned width, unsigned height );
-    virtual ~Image();
+    virtual ~Image() = default;
 
     virtual void
     SetPixel( unsigned x, unsigned y, dr4::Color color ) override final;

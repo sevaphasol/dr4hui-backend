@@ -4,11 +4,6 @@
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/System/Vector2.hpp>
 
-dr4::impl::Image::Image( unsigned width, unsigned height ) : w_( width ), h_( height )
-{
-    impl_.resize( width * height );
-}
-
 void
 dr4::impl::Image::SetPixel( unsigned x, unsigned y, dr4::Color color )
 {

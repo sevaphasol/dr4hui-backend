@@ -11,7 +11,7 @@ namespace impl {
 class Window;
 
 class Texture : public dr4::Texture {
-    friend Window;
+    friend dr4::impl::Window;
 
   public:
     ~Texture() = default;
