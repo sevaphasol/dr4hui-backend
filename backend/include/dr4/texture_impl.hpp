@@ -27,6 +27,9 @@ class Texture : public dr4::Texture {
     GetHeight() const override final;
 
     void
+    Clear( dr4::Color color ) override final;
+
+    void
     Draw( const dr4::Rectangle& rect ) override final;
     void
     Draw( const dr4::Text& text ) override final;

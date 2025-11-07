@@ -1,6 +1,7 @@
 #include "dr4/texture_impl.hpp"
 #include "dr4/font_impl.hpp"
 #include "dr4/img_impl.hpp"
+#include "dr4/math/color.hpp"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
@@ -21,7 +22,7 @@ dr4::impl::Texture::SetSize( dr4::Vec2f size )
     //  size.y );
 
     impl_.create( static_cast<uint>( size.x ), static_cast<uint>( size.y ) );
-    impl_.clear();
+    impl_.clear({0,0,0,0});
 }
 
 dr4::Vec2f
@@ -42,6 +43,12 @@ float
 dr4::impl::Texture::GetHeight() const
 {
     return GetSize().y;
+}
+
+void
+dr4::impl::Texture::Clear(dr4::Color color)
+{
+	impl_.clear({color.r, color.g, color.b, color.a });
 }
 
 void
