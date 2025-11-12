@@ -8,14 +8,8 @@
 namespace dr4 {
 namespace impl {
 
-class Window;
-
 class Texture : public dr4::Texture {
-    friend dr4::impl::Window;
-
   public:
-    ~Texture() = default;
-
     void
     SetSize( dr4::Vec2f size ) override final;
     dr4::Vec2f
@@ -29,17 +23,28 @@ class Texture : public dr4::Texture {
     void
     Clear( dr4::Color color ) override final;
 
-    void
-    Draw( const dr4::Rectangle& rect ) override final;
-    void
-    Draw( const dr4::Text& text ) override final;
     virtual void
-    Draw( const Image& img, const Vec2f& pos ) override final;
-    void
-    Draw( const dr4::Texture& texture, const dr4::Vec2f& pos ) override final;
+    DrawOn( dr4::Texture& texture ) const override final;
+    virtual void
+    SetPos( dr4::Vec2f pos ) override final;
+    virtual dr4::Vec2f
+    GetPos() const override final;
+
+    virtual void
+    SetZero( Vec2f pos ) override final;
+    virtual Vec2f
+    GetZero() const override final;
+
+    auto&
+    GetImpl() const
+    {
+        return impl_;
+    }
 
   private:
-    sf::RenderTexture impl_;
+    mutable sf::RenderTexture impl_;
+    dr4::Vec2f                pos_;
+    dr4::Vec2f                zero_ = { 0.0f, 0.0f };
 };
 
 } // namespace impl

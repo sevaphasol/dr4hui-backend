@@ -12,7 +12,7 @@ dr4::impl::DR4Backend::Name() const
 dr4::Window*
 dr4::impl::DR4Backend::CreateWindow()
 {
-    return new Window();
+    return new dr4::impl::Window();
 }
 
 extern "C" dr4::DR4Backend*

@@ -3,6 +3,8 @@
 #include "dr4/event.hpp"
 #include "dr4/font_impl.hpp"
 #include "dr4/img_impl.hpp"
+#include "dr4/primitives_impl.hpp"
+#include "dr4/text_impl.hpp"
 #include "dr4/texture.hpp"
 #include "dr4/texture_impl.hpp"
 
@@ -23,7 +25,7 @@ dr4::impl::Window::GetTitle() const
 }
 
 void
-dr4::impl::Window::SetSize( const dr4::Vec2f& size )
+dr4::impl::Window::SetSize( dr4::Vec2f size )
 {
     size_ = size;
     impl_.setSize( { static_cast<uint>( size.x ), static_cast<uint>( size.y ) } );
@@ -55,18 +57,20 @@ dr4::impl::Window::Close()
 }
 
 void
-dr4::impl::Window::Clear( const dr4::Color& color )
+dr4::impl::Window::Clear( dr4::Color color )
 {
     impl_.clear( sf::Color( color.r, color.g, color.b, color.a ) );
 }
 
 void
-dr4::impl::Window::Draw( const dr4::Texture& texture, dr4::Vec2f pos )
+dr4::impl::Window::Draw( const dr4::Texture& texture )
 {
     const dr4::impl::Texture& my_texture = dynamic_cast<const dr4::impl::Texture&>( texture );
 
-    sf::Sprite sprite( my_texture.impl_.getTexture() );
-    sprite.setPosition( { pos.x, pos.y } );
+    auto& sf_texture = my_texture.GetImpl();
+
+    sf_texture.display();
+    sf::Sprite sprite( sf_texture.getTexture() );
     impl_.draw( sprite );
 }
 
@@ -76,10 +80,12 @@ dr4::impl::Window::Display()
     impl_.display();
 }
 
-dr4::Image*
-dr4::impl::Window::CreateImage()
+double
+dr4::impl::Window::GetTime()
 {
-    return new dr4::impl::Image();
+    fprintf( stderr, "Sorry, %s unimplemented", __func__ );
+
+    return 0.0;
 }
 
 dr4::Texture*
@@ -88,10 +94,40 @@ dr4::impl::Window::CreateTexture()
     return new dr4::impl::Texture();
 }
 
+dr4::Image*
+dr4::impl::Window::CreateImage()
+{
+    return new dr4::impl::Image();
+}
+
 dr4::Font*
 dr4::impl::Window::CreateFont()
 {
     return new dr4::impl::Font();
+}
+
+dr4::Line*
+dr4::impl::Window::CreateLine()
+{
+    return new dr4::impl::Line();
+}
+
+dr4::Circle*
+dr4::impl::Window::CreateCircle()
+{
+    return new dr4::impl::Circle();
+}
+
+dr4::Rectangle*
+dr4::impl::Window::CreateRectangle()
+{
+    return new dr4::impl::Rectangle();
+}
+
+dr4::Text*
+dr4::impl::Window::CreateText()
+{
+    return new dr4::impl::Text();
 }
 
 std::optional<dr4::Event>
@@ -118,33 +154,34 @@ dr4::impl::Window::sfmlEventConvert( const sf::Event& sf_event )
             event.type = dr4::Event::Type::QUIT;
             break;
         case sf::Event::TextEntered:
-            event.type         = dr4::Event::Type::TEXT_EVENT;
-            event.text.unicode = sf_event.text.unicode;
+            event.type = dr4::Event::Type::TEXT_EVENT;
+            utf8_encode( sf_event.text.unicode, utf8_buffer_ );
+            event.text.unicode = utf8_buffer_;
             break;
         case sf::Event::KeyPressed:
-            event.type    = dr4::Event::Type::KEY_DOWN;
-            event.key.sym = detail::fromSFML( sf_event.key.code );
-            event.key.mod = detail::fromSFML( sf_event.key );
+            event.type     = dr4::Event::Type::KEY_DOWN;
+            event.key.sym  = dr4::impl::detail::fromSFML( sf_event.key.code );
+            event.key.mods = dr4::impl::detail::fromSFML( sf_event.key );
             break;
         case sf::Event::KeyReleased:
-            event.type    = dr4::Event::Type::KEY_UP;
-            event.key.sym = detail::fromSFML( sf_event.key.code );
-            event.key.mod = detail::fromSFML( sf_event.key );
+            event.type     = dr4::Event::Type::KEY_UP;
+            event.key.sym  = dr4::impl::detail::fromSFML( sf_event.key.code );
+            event.key.mods = dr4::impl::detail::fromSFML( sf_event.key );
             break;
         case sf::Event::MouseButtonPressed:
             event.type               = dr4::Event::Type::MOUSE_DOWN;
-            event.mouseButton.button = detail::fromSFML( sf_event.mouseButton.button );
+            event.mouseButton.button = dr4::impl::detail::fromSFML( sf_event.mouseButton.button );
             event.mouseButton.pos.x  = sf_event.mouseButton.x;
             event.mouseButton.pos.y  = sf_event.mouseButton.y;
             break;
         case sf::Event::MouseButtonReleased:
             event.type               = dr4::Event::Type::MOUSE_UP;
-            event.mouseButton.button = detail::fromSFML( sf_event.mouseButton.button );
+            event.mouseButton.button = dr4::impl::detail::fromSFML( sf_event.mouseButton.button );
             event.mouseButton.pos.x  = sf_event.mouseButton.x;
             event.mouseButton.pos.y  = sf_event.mouseButton.y;
             break;
         case sf::Event::MouseMoved:
-            static ::dr4::Vec2f prev_mouse_pos = { 0, 0 }; // вова ест говно
+            static ::dr4::Vec2f prev_mouse_pos = { 0, 0 };
 
             event.type      = ::dr4::Event::Type::MOUSE_MOVE;
             event.mouseMove = {
@@ -160,4 +197,32 @@ dr4::impl::Window::sfmlEventConvert( const sf::Event& sf_event )
     }
 
     return event;
+}
+
+void
+dr4::impl::Window::utf8_encode( uint32_t sym, char buffer[5] )
+{
+    if ( sym <= 0x7F )
+    {
+        buffer[0] = static_cast<char>( sym );
+        buffer[1] = '\0';
+    } else if ( sym <= 0x7FF )
+    {
+        buffer[0] = static_cast<char>( 0xC0 | ( ( sym >> 6 ) & 0x1F ) );
+        buffer[1] = static_cast<char>( 0x80 | ( sym & 0x3F ) );
+        buffer[2] = '\0';
+    } else if ( sym <= 0xFFFF )
+    {
+        buffer[0] = static_cast<char>( 0xE0 | ( ( sym >> 12 ) & 0x0F ) );
+        buffer[1] = static_cast<char>( 0x80 | ( ( sym >> 6 ) & 0x3F ) );
+        buffer[2] = static_cast<char>( 0x80 | ( sym & 0x3F ) );
+        buffer[3] = '\0';
+    } else
+    {
+        buffer[0] = static_cast<char>( 0xF0 | ( ( sym >> 18 ) & 0x07 ) );
+        buffer[1] = static_cast<char>( 0x80 | ( ( sym >> 12 ) & 0x3F ) );
+        buffer[2] = static_cast<char>( 0x80 | ( ( sym >> 6 ) & 0x3F ) );
+        buffer[3] = static_cast<char>( 0x80 | ( sym & 0x3F ) );
+        buffer[4] = '\0';
+    }
 }

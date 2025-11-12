@@ -12,49 +12,71 @@ namespace impl {
 
 class Window : public dr4::Window {
   public:
-    ~Window() = default;
-
-    void
+    virtual void
     SetTitle( const std::string& title ) override final;
-    const std::string&
+    virtual const std::string&
     GetTitle() const override final;
 
-    void
-    SetSize( const dr4::Vec2f& size ) override final;
-    dr4::Vec2f
+    virtual Vec2f
     GetSize() const override final;
+    virtual void
+    SetSize( Vec2f size ) override final;
 
-    void
+    virtual void
     Open() override final;
-    bool
+    virtual bool
     IsOpen() const override final;
-    void
+    virtual void
     Close() override final;
 
-    void
-    Clear( const dr4::Color& color ) override final;
-    void
-    Draw( const dr4::Texture& texture, dr4::Vec2f pos ) override final;
-    void
+    virtual void
+    Clear( Color color ) override final;
+    virtual void
+    Draw( const Texture& texture ) override final;
+    virtual void
     Display() override final;
 
-    dr4::Image*
-    CreateImage() override final;
+    virtual double
+    GetTime() override final;
 
-    dr4::Texture*
+    virtual Texture*
     CreateTexture() override final;
-
-    dr4::Font*
+    virtual Image*
+    CreateImage() override final;
+    virtual Font*
     CreateFont() override final;
+    virtual Line*
+    CreateLine() override final;
+    virtual Circle*
+    CreateCircle() override final;
+    virtual Rectangle*
+    CreateRectangle() override final;
+    virtual Text*
+    CreateText() override final;
 
-    std::optional<dr4::Event>
+    virtual void
+    StartTextInput() override final
+    {
+    }
+
+    virtual void
+    StopTextInput() override final
+    {
+    }
+
+    virtual std::optional<Event>
     PollEvent() override final;
 
   private:
-    static dr4::Event
+    dr4::Event
     sfmlEventConvert( const sf::Event& sf_event );
 
+    static void
+    utf8_encode( uint32_t sym, char buffer[5] );
+
   private:
+    char utf8_buffer_[5];
+
     dr4::Vec2f       size_;
     std::string      title_;
     sf::RenderWindow impl_;

@@ -1,22 +1,22 @@
 #include "dr4/img_impl.hpp"
 #include "dr4/math/color.hpp"
+#include "dr4/texture_impl.hpp"
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Transform.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/System/Vector2.hpp>
 
 void
-dr4::impl::Image::SetPixel( unsigned x, unsigned y, dr4::Color color )
+dr4::impl::Image::SetPixel( size_t x, size_t y, dr4::Color color )
 {
-    // // fprintf( stderr, "pos   = %d %d\n", x, y );
-    // // fprintf( stderr, "color = %d %d %d %d\n", color.r, color.g, color.b, color.a );
-
-    impl_[y * w_ + x].color    = { color.r, color.g, color.b, color.a };
-    impl_[y * w_ + x].position = sf::Vector2f( x, y );
-    impl_[y * w_ + x].position = sf::Vector2f( x, y );
+    impl_[y * w_ + x].color      = { color.r, color.g, color.b, color.a };
+    impl_[y * w_ + x].position.x = x;
+    impl_[y * w_ + x].position.y = y;
 }
 
 dr4::Color
-dr4::impl::Image::GetPixel( unsigned x, unsigned y ) const
+dr4::impl::Image::GetPixel( size_t x, size_t y ) const
 {
     const auto& v = impl_[y * w_ + x];
 
@@ -26,11 +26,10 @@ dr4::impl::Image::GetPixel( unsigned x, unsigned y ) const
 void
 dr4::impl::Image::SetSize( dr4::Vec2f size )
 {
-    // fprintf( stderr, "debug in %s:%d:%s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__ );
     w_ = size.x;
     h_ = size.y;
-    // fprintf( stderr, "debug in %s:%d:%s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__ );
-    impl_.resize( w_ * h_ );
+
+    impl_.resize( size.x * size.y );
 }
 
 dr4::Vec2f
@@ -49,4 +48,31 @@ float
 dr4::impl::Image::GetHeight() const
 {
     return h_;
+}
+
+void
+dr4::impl::Image::DrawOn( dr4::Texture& texture ) const
+{
+    auto& my_texture = dynamic_cast<dr4::impl::Texture&>( texture );
+
+    sf::Transform transform = sf::Transform::Identity;
+
+    auto tex_zero = my_texture.GetZero();
+
+    transform.translate( { x_ + tex_zero.x, y_ + tex_zero.y } );
+
+    my_texture.GetImpl().draw( impl_.data(), impl_.size(), sf::PrimitiveType::Points, transform );
+}
+
+void
+dr4::impl::Image::SetPos( Vec2f pos )
+{
+    x_ = pos.x;
+    y_ = pos.y;
+}
+
+dr4::Vec2f
+dr4::impl::Image::GetPos() const
+{
+    return { x_, y_ };
 }

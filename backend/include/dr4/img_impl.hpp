@@ -3,7 +3,6 @@
 #include "dr4/math/color.hpp"
 #include "dr4/math/vec2.hpp"
 #include "dr4/texture.hpp"
-#include "dr4/texture_impl.hpp"
 
 #include <SFML/Graphics/Vertex.hpp>
 #include <vector>
@@ -14,15 +13,11 @@ namespace impl {
 class Window;
 
 class Image : public dr4::Image {
-    friend dr4::impl::Texture;
-
   public:
-    virtual ~Image() = default;
-
     virtual void
-    SetPixel( unsigned x, unsigned y, dr4::Color color ) override final;
+    SetPixel( size_t x, size_t y, dr4::Color color ) override final;
     virtual dr4::Color
-    GetPixel( unsigned x, unsigned y ) const override final;
+    GetPixel( size_t x, size_t y ) const override final;
 
     virtual void
     SetSize( dr4::Vec2f size ) override final;
@@ -33,11 +28,32 @@ class Image : public dr4::Image {
     virtual float
     GetHeight() const override final;
 
+    virtual void
+    DrawOn( dr4::Texture& texture ) const override final;
+    virtual void
+    SetPos( Vec2f pos ) override final;
+    virtual Vec2f
+    GetPos() const override final;
+
+    auto&
+    GetImpl()
+    {
+        return impl_;
+    }
+
+    const auto&
+    GetImpl() const
+    {
+        return impl_;
+    }
+
   private:
     std::vector<sf::Vertex> impl_;
 
     float w_ = 0;
     float h_ = 0;
+    float x_ = 0;
+    float y_ = 0;
 };
 
 } // namespace impl
