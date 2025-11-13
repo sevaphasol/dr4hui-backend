@@ -8,9 +8,10 @@
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
+#include <memory>
 
 void
-dr4::impl::Line::SetStart( Vec2f start )
+dr4::impl::Line::SetStart( dr4::Vec2f start )
 {
     dirty_ = true;
 
@@ -18,7 +19,7 @@ dr4::impl::Line::SetStart( Vec2f start )
 }
 
 void
-dr4::impl::Line::SetEnd( Vec2f end )
+dr4::impl::Line::SetEnd( dr4::Vec2f end )
 {
     dirty_ = true;
 
@@ -26,7 +27,7 @@ dr4::impl::Line::SetEnd( Vec2f end )
 }
 
 void
-dr4::impl::Line::SetColor( Color color )
+dr4::impl::Line::SetColor( dr4::Color color )
 {
     dirty_ = true;
 
@@ -66,7 +67,7 @@ dr4::impl::Line::GetThickness() const
 }
 
 void
-dr4::impl::Line::SetPos( Vec2f pos )
+dr4::impl::Line::SetPos( dr4::Vec2f pos )
 {
     SetStart( pos );
 }
@@ -135,25 +136,33 @@ dr4::impl::Line::update() const
 }
 
 void
-dr4::impl::Circle::SetCenter( Vec2f center )
+dr4::impl::Circle::SetCenter( dr4::Vec2f center )
 {
     impl_.setOrigin( { center.x, center.y } );
 }
 
 void
-dr4::impl::Circle::SetRadius( float radius )
+dr4::impl::Circle::SetPos( dr4::Vec2f pos )
 {
-    impl_.setRadius( radius );
+    SetCenter( pos );
 }
 
 void
-dr4::impl::Circle::SetFillColor( Color color )
+dr4::impl::Circle::SetRadius( float radius )
+{
+    real_radius_ = radius;
+
+    impl_.setRadius( real_radius_ - 2 * GetBorderThickness() );
+}
+
+void
+dr4::impl::Circle::SetFillColor( dr4::Color color )
 {
     impl_.setFillColor( { color.r, color.g, color.b, color.a } );
 }
 
 void
-dr4::impl::Circle::SetBorderColor( Color color )
+dr4::impl::Circle::SetBorderColor( dr4::Color color )
 {
     impl_.setOutlineColor( { color.r, color.g, color.b, color.a } );
 }
@@ -162,6 +171,8 @@ void
 dr4::impl::Circle::SetBorderThickness( float thickness )
 {
     impl_.setOutlineThickness( thickness );
+
+    impl_.setRadius( real_radius_ - 2 * thickness );
 }
 
 dr4::Vec2f
@@ -172,10 +183,16 @@ dr4::impl::Circle::GetCenter() const
     return { sf_origin.x, sf_origin.y };
 }
 
+dr4::Vec2f
+dr4::impl::Circle::GetPos() const
+{
+    return GetCenter();
+}
+
 float
 dr4::impl::Circle::GetRadius() const
 {
-    return impl_.getRadius();
+    return real_radius_;
 }
 
 dr4::Color
@@ -201,18 +218,6 @@ dr4::impl::Circle::GetBorderThickness() const
 }
 
 void
-dr4::impl::Circle::SetPos( Vec2f pos )
-{
-    SetCenter( pos );
-}
-
-dr4::Vec2f
-dr4::impl::Circle::GetPos() const
-{
-    return GetCenter();
-}
-
-void
 dr4::impl::Circle::DrawOn( dr4::Texture& texture ) const
 {
     auto& my_texture = dynamic_cast<dr4::impl::Texture&>( texture );
@@ -227,19 +232,29 @@ dr4::impl::Circle::DrawOn( dr4::Texture& texture ) const
 }
 
 void
-dr4::impl::Rectangle::SetSize( Vec2f size )
+dr4::impl::Rectangle::SetPos( dr4::Vec2f pos )
 {
-    impl_.setSize( { size.x, size.y } );
+    real_pos_ = pos;
+
+    impl_.setPosition( { real_pos_.x + GetBorderThickness(), real_pos_.y + GetBorderThickness() } );
 }
 
 void
-dr4::impl::Rectangle::SetFillColor( Color color )
+dr4::impl::Rectangle::SetSize( dr4::Vec2f size )
+{
+    real_size_ = size;
+
+    impl_.setSize( { size.x - 2 * GetBorderThickness(), size.y - 2 * GetBorderThickness() } );
+}
+
+void
+dr4::impl::Rectangle::SetFillColor( dr4::Color color )
 {
     impl_.setFillColor( { color.r, color.g, color.b, color.a } );
 }
 
 void
-dr4::impl::Rectangle::SetBorderColor( Color color )
+dr4::impl::Rectangle::SetBorderColor( dr4::Color color )
 {
     impl_.setOutlineColor( { color.r, color.g, color.b, color.a } );
 }
@@ -248,6 +263,14 @@ void
 dr4::impl::Rectangle::SetBorderThickness( float thickness )
 {
     impl_.setOutlineThickness( thickness );
+    impl_.setSize( { real_size_.x - 2 * thickness, real_size_.y - 2 * thickness } );
+    impl_.setPosition( { real_pos_.x + GetBorderThickness(), real_pos_.y + GetBorderThickness() } );
+}
+
+dr4::Vec2f
+dr4::impl::Rectangle::GetPos() const
+{
+    return real_pos_;
 }
 
 dr4::Vec2f
@@ -278,20 +301,6 @@ float
 dr4::impl::Rectangle::GetBorderThickness() const
 {
     return impl_.getOutlineThickness();
-}
-
-void
-dr4::impl::Rectangle::SetPos( Vec2f pos )
-{
-    impl_.setOrigin( { pos.x, pos.y } );
-}
-
-dr4::Vec2f
-dr4::impl::Rectangle::GetPos() const
-{
-    auto sf_origin = impl_.getOrigin();
-
-    return { sf_origin.x, sf_origin.y };
 }
 
 void

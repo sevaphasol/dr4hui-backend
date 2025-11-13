@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dr4/math/vec2.hpp"
 #include "dr4/texture.hpp"
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
@@ -111,6 +112,8 @@ class Circle : public dr4::Circle {
     }
 
   private:
+    float real_radius_;
+
     sf::CircleShape impl_;
 };
 
@@ -157,6 +160,9 @@ class Rectangle : public dr4::Rectangle {
     }
 
   private:
+    dr4::Vec2f real_size_;
+    dr4::Vec2f real_pos_;
+
     sf::RectangleShape impl_;
 };
 
