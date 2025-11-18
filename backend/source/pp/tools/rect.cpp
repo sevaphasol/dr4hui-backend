@@ -10,7 +10,7 @@ pp::impl::RectTool::RectTool( ::pp::Canvas* cvs )
 std::string_view
 pp::impl::RectTool::Icon() const
 {
-    return "\udb83\ude5e";
+    return "RectTool";
 }
 
 std::string_view

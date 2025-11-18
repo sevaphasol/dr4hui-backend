@@ -1,15 +1,16 @@
 #pragma once
 
 #include "cum/ifc/pp.hpp"
+#include <memory>
 
-namespace dr4 {
+namespace cum {
 namespace impl {
 
-class PPToolPlugin : public pp::PPToolPlugin {
+class PPToolPlugin : public cum::PPToolPlugin {
   public:
     ~PPToolPlugin() = default;
 
-    virtual std::vector<pp::Tool*>
+    virtual std::vector<std::unique_ptr<pp::Tool>>
     CreateTools( pp::Canvas* cvs ) override final;
 
     virtual std::string_view
@@ -32,4 +33,4 @@ class PPToolPlugin : public pp::PPToolPlugin {
 };
 
 } // namespace impl
-} // namespace dr4
+} // namespace cum

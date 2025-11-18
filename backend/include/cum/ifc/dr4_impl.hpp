@@ -2,7 +2,7 @@
 
 #include "cum/ifc/dr4.hpp"
 
-namespace dr4 {
+namespace cum {
 namespace impl {
 
 class DR4Backend : public cum::DR4BackendPlugin {

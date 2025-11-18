@@ -28,15 +28,23 @@ endfunction()
 
 #==============================================================================
 
-function( setup_libhui )
-	message( WARNING "Unimplemented: setup_libhui" )
+function( setup_libpp )
+	file( GLOB_RECURSE PP_BACKEND_SOURCES CONFIGURE_DEPENDS
+		${BACKEND_SOURCE_DIR}/pp/**/*.cpp
+		${BACKEND_SOURCE_DIR}/pp/*.cpp
+	)
+	add_library( pp SHARED ${PP_BACKEND_SOURCES} )
+	target_include_directories( pp PRIVATE ${BACKEND_INCLUDE_DIR} )
+	target_include_directories( pp PRIVATE ${PROJECT_SOURCE_DIR}/interface/include )
+
+	target_link_libraries(dr4 PRIVATE dr4hui-interface )
 endfunction()
 
 #==============================================================================
 
 function( setup_libs )
 	setup_libdr4()
-	setup_libhui()
+	setup_libpp()
 endfunction()
 
 #==============================================================================
