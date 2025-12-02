@@ -10,7 +10,9 @@
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 void
 dr4::impl::Window::SetTitle( const std::string& title )
@@ -84,9 +86,15 @@ dr4::impl::Window::Display()
 double
 dr4::impl::Window::GetTime()
 {
-    fprintf( stderr, "Sorry, %s unimplemented", __func__ );
+    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
 
     return 0.0;
+}
+
+void
+dr4::impl::Window::Sleep( double time )
+{
+    std::this_thread::sleep_for( std::chrono::duration<double>( time ) );
 }
 
 dr4::Texture*

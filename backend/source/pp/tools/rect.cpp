@@ -1,24 +1,19 @@
 #include <cassert>
 #include <cmath>
-#include <iostream>
-#include <limits>
 
+#include "dr4/mouse_buttons.hpp"
 #include "pp/shapes/rect.hpp"
 #include "pp/tools/rect.hpp"
 
 pp::impl::RectTool::RectTool( ::pp::Canvas* cvs )
-    : cvs_{ cvs },
-      isDrawing_( false ),
-      rect_{ nullptr },
-      state_{ cvs->GetState() },
-      rectInd_( std::numeric_limits<size_t>::max() )
+    : cvs_( cvs ), is_drawing_( false ), rect_( nullptr )
 {
 }
 
 std::string_view
 pp::impl::RectTool::Icon() const
 {
-    return "RectToolIcon";
+    return "R";
 }
 
 std::string_view
@@ -30,43 +25,31 @@ pp::impl::RectTool::Name() const
 bool
 pp::impl::RectTool::IsCurrentlyDrawing() const
 {
-    return isDrawing_;
+    return is_drawing_;
 }
 
 void
 pp::impl::RectTool::OnStart()
 {
-    if ( state_->selectedTool != nullptr )
-    {
-        state_->selectedTool->OnEnd();
-    }
-    state_->selectedTool = this;
 }
 
 void
 pp::impl::RectTool::OnBreak()
 {
-    if ( isDrawing_ )
+    if ( is_drawing_ )
     {
         assert( rect_ );
-        cvs_->DelShape( rectInd_ );
-
-        if ( state_->selectedShape == rect_ )
-        {
-            state_->selectedShape = nullptr;
-        }
-
-        rect_      = nullptr;
-        isDrawing_ = false;
+        is_drawing_ = false;
+        cvs_->DelShape( rect_ );
     }
 }
 
 void
 pp::impl::RectTool::OnEnd()
 {
-    if ( isDrawing_ )
+    if ( is_drawing_ )
     {
-        isDrawing_ = false;
+        is_drawing_ = false;
         rect_->OnSelect();
     }
 }
@@ -74,22 +57,24 @@ pp::impl::RectTool::OnEnd()
 bool
 pp::impl::RectTool::OnMouseDown( const dr4::Event::MouseButton& evt )
 {
-    if ( !isDrawing_ )
+    if ( evt.button != dr4::MouseButtonType::LEFT )
     {
-        isDrawing_ = true;
+        return false;
+    }
 
-        rect_ = new pp::impl::Rect( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_->GetState() );
-        rectInd_ = cvs_->AddShape( rect_ );
-        rect_->SetPos( evt.pos );
-        return true;
-    } else
+    if ( !is_drawing_ )
     {
-        isDrawing_ = false;
-        rect_->OnSelect();
+        is_drawing_ = true;
+
+        rect_ = new pp::impl::Rect( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_ );
+        cvs_->AddShape( rect_ );
+        rect_->SetPos( evt.pos );
         return true;
     }
 
-    return false;
+    is_drawing_ = false;
+    rect_->OnSelect();
+    return true;
 }
 
 bool
@@ -101,7 +86,7 @@ pp::impl::RectTool::OnMouseUp( const dr4::Event::MouseButton& evt )
 bool
 pp::impl::RectTool::OnMouseMove( const dr4::Event::MouseMove& evt )
 {
-    if ( !isDrawing_ )
+    if ( !is_drawing_ )
     {
         return false;
     }

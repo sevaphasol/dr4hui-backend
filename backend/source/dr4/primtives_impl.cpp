@@ -1,3 +1,4 @@
+#include "dr4/math/vec2.hpp"
 #include "dr4/primitives_impl.hpp"
 #include "dr4/texture_impl.hpp"
 #include <SFML/Graphics/CircleShape.hpp>
@@ -155,15 +156,10 @@ dr4::impl::Circle::SetPos( dr4::Vec2f pos )
 }
 
 void
-dr4::impl::Circle::SetScale( dr4::Vec2f factor )
+dr4::impl::Circle::SetRadius( dr4::Vec2f radius )
 {
-    impl_.setScale( factor.x, factor.y );
-}
-
-void
-dr4::impl::Circle::SetRadius( float radius )
-{
-    impl_.setRadius( radius );
+    impl_.setRadius( 1.0f );
+    impl_.setScale( radius.x, radius.y );
 }
 
 void
@@ -211,15 +207,11 @@ dr4::impl::Circle::GetPos() const
 }
 
 dr4::Vec2f
-dr4::impl::Circle::GetScale() const
-{
-    return { impl_.getScale().x, impl_.getScale().y };
-}
-
-float
 dr4::impl::Circle::GetRadius() const
 {
-    return impl_.getRadius();
+    auto sf_scale = impl_.getScale();
+
+    return { sf_scale.x, sf_scale.y };
 }
 
 dr4::Color

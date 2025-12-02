@@ -73,9 +73,7 @@ class Circle : public dr4::Circle {
     virtual void
     SetCenter( Vec2f center ) override final;
     virtual void
-    SetScale( dr4::Vec2f factor ) override final;
-    virtual void
-    SetRadius( float radius ) override final;
+    SetRadius( Vec2f radius ) override final;
     virtual void
     SetFillColor( Color color ) override final;
     virtual void
@@ -86,8 +84,6 @@ class Circle : public dr4::Circle {
     virtual Vec2f
     GetCenter() const override final;
     virtual Vec2f
-    GetScale() const override final;
-    virtual float
     GetRadius() const override final;
     virtual Color
     GetFillColor() const override final;

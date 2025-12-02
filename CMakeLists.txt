@@ -11,8 +11,9 @@ include( ${CMAKE_CURRENT_SOURCE_DIR}/cmake/funcs.cmake )
 
 setup_constants()
 setup_interface()
-setup_libs()
-install_libs()
+setup_plugins()
+install_plugins()
+install_core()
 
 if ( BUILD_EXAMPLES )
     build_examples()

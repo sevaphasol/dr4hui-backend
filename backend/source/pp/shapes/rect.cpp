@@ -4,10 +4,9 @@
 #include "dr4/math/rect.hpp"
 #include "dr4/math/vec2.hpp"
 #include "pp/shapes/rect.hpp"
-#include <iostream>
 
-pp::impl::Rect::Rect( dr4::Window* window, const ::pp::ControlsTheme& theme, ::pp::State* state )
-    : state_( state ), rect_( window->CreateRectangle() )
+pp::impl::Rect::Rect( dr4::Window* window, const ::pp::ControlsTheme& theme, ::pp::Canvas* cvs )
+    : rect_( window->CreateRectangle() ), cvs_( cvs )
 {
     rect_->SetBorderThickness( RectBorderThickness );
     rect_->SetBorderColor( theme.lineColor );
@@ -24,31 +23,27 @@ pp::impl::Rect::Rect( dr4::Window* window, const ::pp::ControlsTheme& theme, ::p
 bool
 pp::impl::Rect::OnMouseDown( const dr4::Event::MouseButton& evt )
 {
-    // std::cerr << "\n\n\n";
-
-    if ( evt.button == dr4::MouseButtonType::LEFT )
+    if ( evt.button != dr4::MouseButtonType::LEFT )
     {
-        if ( state_->selectedShape == this )
+        return false;
+    }
+
+    if ( cvs_->GetSelectedShape() == this )
+    {
+        active_rsz_circle_ = getResizeCircle( evt.pos );
+
+        if ( active_rsz_circle_ != ResizeCircle::Count )
         {
-            active_rsz_circle_ = getResizeCircle( evt.pos );
-
-            if ( active_rsz_circle_ != ResizeCircle::Count )
-            {
-                is_resized_ = true;
-                return true;
-            }
-        }
-
-        if ( onMe( evt.pos ) )
-        {
-            // std::cerr << "ON ME\n\n\n\n";
-
-            OnSelect();
-            is_dragged_ = true;
+            is_resized_ = true;
             return true;
         }
+    }
 
-        // std::cerr << "NOT ON ME\n\n\n";
+    if ( onMe( evt.pos ) )
+    {
+        OnSelect();
+        is_dragged_ = true;
+        return true;
     }
 
     return false;
@@ -89,23 +84,22 @@ pp::impl::Rect::OnMouseMove( const dr4::Event::MouseMove& evt )
 void
 pp::impl::Rect::OnSelect()
 {
-    if ( state_->selectedShape != nullptr )
+    if ( cvs_->GetSelectedShape() != nullptr )
     {
-        if ( state_->selectedShape == this )
+        if ( cvs_->GetSelectedShape() == this )
         {
             return;
         }
 
-        state_->selectedShape->OnDeselect();
+        cvs_->GetSelectedShape()->OnDeselect();
     }
 
-    state_->selectedShape = this;
+    cvs_->SetSelectedShape( this );
 }
 
 void
 pp::impl::Rect::OnDeselect()
 {
-    state_->selectedShape = nullptr;
 }
 
 void
@@ -113,9 +107,8 @@ pp::impl::Rect::DrawOn( dr4::Texture& texture ) const
 {
     rect_->DrawOn( texture );
 
-    if ( state_->selectedShape == this )
+    if ( cvs_->GetSelectedShape() == this )
     {
-        // std::cerr << "drawing corners" << std::endl;
         drawResizeCircles( texture );
     }
 }

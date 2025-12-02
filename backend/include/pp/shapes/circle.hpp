@@ -22,7 +22,7 @@ class Circle final : public ::pp::Shape {
     };
 
   public:
-    Circle( dr4::Window* window, const pp::ControlsTheme& theme, pp::State* state );
+    Circle( dr4::Window* window, const pp::ControlsTheme& theme, pp::Canvas* cvs );
 
     bool
     OnMouseDown( const dr4::Event::MouseButton& evt ) override final;
@@ -30,6 +30,10 @@ class Circle final : public ::pp::Shape {
     OnMouseUp( const dr4::Event::MouseButton& evt ) override final;
     bool
     OnMouseMove( const dr4::Event::MouseMove& evt ) override final;
+    virtual bool
+    OnKeyDown( const dr4::Event::KeyEvent& evt ) override final;
+    virtual bool
+    OnKeyUp( const dr4::Event::KeyEvent& evt ) override final;
 
     void
     OnSelect() override final;
@@ -78,7 +82,7 @@ class Circle final : public ::pp::Shape {
 
     ResizeCircle active_rsz_circle_;
 
-    pp::State* const state_;
+    pp::Canvas* cvs_;
 
     bool is_resized_ = false;
     bool is_dragged_ = false;

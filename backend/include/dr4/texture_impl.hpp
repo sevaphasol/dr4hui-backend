@@ -35,6 +35,13 @@ class Texture : public dr4::Texture {
     virtual Vec2f
     GetZero() const override final;
 
+    virtual void
+    SetClipRect( Rect2f rect ) override final;
+    virtual void
+    RemoveClipRect() override final;
+    virtual Rect2f
+    GetClipRect() const override final;
+
     auto&
     GetImpl() const
     {

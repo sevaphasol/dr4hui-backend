@@ -34,14 +34,9 @@ class CircleTool final : public pp::Tool {
     OnMouseMove( const dr4::Event::MouseMove& evt ) override;
 
   private:
-    pp::Canvas* cvs_;
-
-    bool is_drawing_;
-
+    pp::Canvas*       cvs_;
     pp::impl::Circle* circle_;
-    size_t            circle_ind_;
-
-    pp::State* const state_;
+    bool              is_drawing_;
 };
 
 } // namespace impl

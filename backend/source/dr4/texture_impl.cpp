@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transform.hpp>
+#include <iostream>
 
 void
 dr4::impl::Texture::SetSize( dr4::Vec2f size )
@@ -64,6 +65,26 @@ dr4::Vec2f
 dr4::impl::Texture::GetPos() const
 {
     return pos_;
+}
+
+void
+dr4::impl::Texture::SetClipRect( Rect2f rect )
+{
+    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
+}
+
+void
+dr4::impl::Texture::RemoveClipRect()
+{
+    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
+}
+
+dr4::Rect2f
+dr4::impl::Texture::GetClipRect() const
+{
+    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
+
+    return { 0, 0, 0, 0 };
 }
 
 void

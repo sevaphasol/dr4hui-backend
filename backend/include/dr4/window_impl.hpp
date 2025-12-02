@@ -36,9 +36,6 @@ class Window : public dr4::Window {
     virtual void
     Display() override final;
 
-    virtual double
-    GetTime() override final;
-
     virtual Texture*
     CreateTexture() override final;
     virtual Image*
@@ -63,6 +60,11 @@ class Window : public dr4::Window {
     StopTextInput() override final
     {
     }
+
+    virtual double
+    GetTime() override final;
+    virtual void
+    Sleep( double time ) override final;
 
     virtual std::optional<Event>
     PollEvent() override final;

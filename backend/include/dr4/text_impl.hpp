@@ -32,7 +32,7 @@ class Text : public dr4::Text {
     GetFontSize() const override final;
     virtual dr4::Text::VAlign
     GetVAlign() const override final;
-    virtual const dr4::Font&
+    virtual const dr4::Font*
     GetFont() const override final;
 
     virtual void

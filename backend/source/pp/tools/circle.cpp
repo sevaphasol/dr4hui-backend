@@ -1,23 +1,20 @@
 #include <cassert>
 #include <cmath>
-#include <limits>
 
+#include "dr4/event.hpp"
+#include "dr4/mouse_buttons.hpp"
 #include "pp/shapes/circle.hpp"
 #include "pp/tools/circle.hpp"
 
 pp::impl::CircleTool::CircleTool( ::pp::Canvas* cvs )
-    : cvs_{ cvs },
-      is_drawing_( false ),
-      circle_{ nullptr },
-      state_{ cvs->GetState() },
-      circle_ind_( std::numeric_limits<size_t>::max() )
+    : cvs_( cvs ), is_drawing_( false ), circle_{ nullptr }
 {
 }
 
 std::string_view
 pp::impl::CircleTool::Icon() const
 {
-    return "CircleToolIcon";
+    return "C";
 }
 
 std::string_view
@@ -35,11 +32,6 @@ pp::impl::CircleTool::IsCurrentlyDrawing() const
 void
 pp::impl::CircleTool::OnStart()
 {
-    if ( state_->selectedTool != nullptr )
-    {
-        state_->selectedTool->OnEnd();
-    }
-    state_->selectedTool = this;
 }
 
 void
@@ -48,15 +40,8 @@ pp::impl::CircleTool::OnBreak()
     if ( is_drawing_ )
     {
         assert( circle_ );
-        cvs_->DelShape( circle_ind_ );
-
-        if ( state_->selectedShape == circle_ )
-        {
-            state_->selectedShape = nullptr;
-        }
-
-        circle_     = nullptr;
         is_drawing_ = false;
+        cvs_->DelShape( circle_ );
     }
 }
 
@@ -73,13 +58,17 @@ pp::impl::CircleTool::OnEnd()
 bool
 pp::impl::CircleTool::OnMouseDown( const dr4::Event::MouseButton& evt )
 {
+    if ( evt.button != dr4::MouseButtonType::LEFT )
+    {
+        return false;
+    }
+
     if ( !is_drawing_ )
     {
         is_drawing_ = true;
 
-        circle_ =
-            new pp::impl::Circle( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_->GetState() );
-        circle_ind_ = cvs_->AddShape( circle_ );
+        circle_ = new pp::impl::Circle( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_ );
+        cvs_->AddShape( circle_ );
         circle_->SetPos( evt.pos );
         return true;
     }

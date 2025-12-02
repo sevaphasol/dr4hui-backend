@@ -2,6 +2,7 @@
 #include "dr4/font_impl.hpp"
 #include "dr4/texture_impl.hpp"
 #include <SFML/Graphics/Text.hpp>
+#include <iostream>
 
 void
 dr4::impl::Text::SetText( const std::string& text )
@@ -25,7 +26,7 @@ dr4::impl::Text::SetFontSize( float size )
 void
 dr4::impl::Text::SetVAlign( dr4::Text::VAlign align )
 {
-    fprintf( stderr, "Sorry, %s unimplemented", __func__ );
+    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
 }
 
 void
@@ -67,15 +68,15 @@ dr4::impl::Text::GetFontSize() const
 dr4::Text::VAlign
 dr4::impl::Text::GetVAlign() const
 {
-    fprintf( stderr, "Sorry, %s unimplemented", __func__ );
+    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
 
     return dr4::Text::VAlign::UNKNOWN;
 }
 
-const dr4::Font&
+const dr4::Font*
 dr4::impl::Text::GetFont() const
 {
-    return font_;
+    return &font_;
 }
 
 void
