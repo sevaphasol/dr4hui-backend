@@ -158,8 +158,9 @@ dr4::impl::Circle::SetPos( dr4::Vec2f pos )
 void
 dr4::impl::Circle::SetRadius( dr4::Vec2f radius )
 {
-    impl_.setRadius( 1.0f );
-    impl_.setScale( radius.x, radius.y );
+    impl_.setRadius( radius.x );
+    impl_.setScale( 1.0, radius.y / radius.x );
+    // impl_.setPointCount( 100000 );
 }
 
 void
@@ -209,9 +210,10 @@ dr4::impl::Circle::GetPos() const
 dr4::Vec2f
 dr4::impl::Circle::GetRadius() const
 {
-    auto sf_scale = impl_.getScale();
+    float radius   = impl_.getRadius();
+    auto  sf_scale = impl_.getScale();
 
-    return { sf_scale.x, sf_scale.y };
+    return { radius, radius * sf_scale.y / sf_scale.x };
 }
 
 dr4::Color
