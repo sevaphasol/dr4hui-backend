@@ -14,6 +14,14 @@
 #include <iostream>
 #include <thread>
 
+dr4::impl::Window::Window()
+{
+    auto current_time        = std::chrono::system_clock::now();
+    auto duration_in_seconds = std::chrono::duration<double>( current_time.time_since_epoch() );
+
+    init_time_ = duration_in_seconds.count();
+}
+
 void
 dr4::impl::Window::SetTitle( const std::string& title )
 {
@@ -86,9 +94,10 @@ dr4::impl::Window::Display()
 double
 dr4::impl::Window::GetTime()
 {
-    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
+    auto current_time        = std::chrono::system_clock::now();
+    auto duration_in_seconds = std::chrono::duration<double>( current_time.time_since_epoch() );
 
-    return 0.0;
+    return duration_in_seconds.count() - init_time_;
 }
 
 void
@@ -125,6 +134,18 @@ dr4::Circle*
 dr4::impl::Window::CreateCircle()
 {
     return new dr4::impl::Circle();
+}
+
+void
+dr4::impl::Window::SetDefaultFont( dr4::Font* font )
+{
+    font_ = font;
+}
+
+dr4::Font*
+dr4::impl::Window::GetDefaultFont()
+{
+    return font_;
 }
 
 dr4::Rectangle*

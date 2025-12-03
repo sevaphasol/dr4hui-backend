@@ -12,17 +12,15 @@
 namespace pp {
 namespace impl {
 
-class Circle final : public ::pp::Shape {
+class Line final : public ::pp::Shape {
     enum ResizeCircle {
-        Lft   = 0,
-        Top   = 1,
-        Rht   = 2,
-        Bot   = 3,
-        Count = 4,
+        Start = 0,
+        End   = 1,
+        Count = 2,
     };
 
   public:
-    Circle( dr4::Window* window, const pp::ControlsTheme& theme, pp::Canvas* cvs );
+    Line( dr4::Window* window, const pp::ControlsTheme& theme, pp::Canvas* cvs );
 
     bool
     OnMouseDown( const dr4::Event::MouseButton& evt ) override final;
@@ -45,14 +43,13 @@ class Circle final : public ::pp::Shape {
     GetPos() const override final;
 
     void
-    SetCenter( dr4::Vec2f pos );
+    SetStart( dr4::Vec2f pos );
     dr4::Vec2f
-    GetCenter() const;
-
+    GetStart() const;
     void
-    SetSize( dr4::Vec2f size );
+    SetEnd( dr4::Vec2f pos );
     dr4::Vec2f
-    GetSize() const;
+    GetEnd() const;
 
   private:
     void
@@ -69,10 +66,10 @@ class Circle final : public ::pp::Shape {
     drawResizeCircles( dr4::Texture& tex ) const;
 
   private:
-    static constexpr float CircleBorderThickness = 2.0f;
-    static constexpr float ResizeCircleRadius    = 5.0f;
+    static constexpr float LineThickness      = 2.0f;
+    static constexpr float ResizeCircleRadius = 5.0f;
 
-    std::unique_ptr<dr4::Circle> circle_;
+    std::unique_ptr<dr4::Line> line_;
 
     std::unique_ptr<dr4::Circle> rsz_circles_[ResizeCircle::Count];
 

@@ -17,15 +17,14 @@ dr4::impl::Font::LoadFromBuffer( const void* buffer, size_t size )
 float
 dr4::impl::Font::GetAscent( float fontSize ) const
 {
-    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
+    sf::Glyph ascent = impl_.getGlyph( 'M', fontSize, false );
 
-    return 0.0f;
+    return -ascent.bounds.height;
 }
 
 float
 dr4::impl::Font::GetDescent( float fontSize ) const
 {
-    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
-
-    return 0.0f;
+    sf::Glyph descent = impl_.getGlyph( 'p', fontSize, false );
+    return descent.bounds.height + descent.bounds.top;
 }

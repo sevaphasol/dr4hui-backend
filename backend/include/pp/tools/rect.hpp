@@ -7,10 +7,10 @@
 namespace pp {
 namespace impl {
 
-class RectTool final : public ::pp::Tool {
+class RectTool final : public pp::Tool {
 
   public:
-    RectTool( ::pp::Canvas* cvs );
+    RectTool( pp::Canvas* cvs );
 
     virtual std::string_view
     Icon() const override;
@@ -34,9 +34,9 @@ class RectTool final : public ::pp::Tool {
     OnMouseMove( const dr4::Event::MouseMove& evt ) override;
 
   private:
-    ::pp::Canvas*   cvs_;
-    pp::impl::Rect* rect_;
-    bool            is_drawing_;
+    pp::Canvas*     cvs_        = nullptr;
+    pp::impl::Rect* rect_       = nullptr;
+    bool            is_drawing_ = false;
 };
 
 } // namespace impl

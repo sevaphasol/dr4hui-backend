@@ -77,7 +77,7 @@ class Rect final : public ::pp::Shape {
 
     ResizeCircle active_rsz_circle_;
 
-    pp::Canvas* cvs_;
+    pp::Canvas* cvs_ = nullptr;
 
     bool is_resized_ = false;
     bool is_dragged_ = false;

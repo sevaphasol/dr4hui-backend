@@ -24,16 +24,11 @@ dr4::impl::Text::SetFontSize( float size )
 }
 
 void
-dr4::impl::Text::SetVAlign( dr4::Text::VAlign align )
-{
-    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
-}
-
-void
 dr4::impl::Text::SetFont( const dr4::Font* font )
 {
     const dr4::impl::Font& my_font = dynamic_cast<const dr4::impl::Font&>( *font );
 
+    font_ = my_font;
     impl_.setFont( my_font.GetImpl() );
 }
 
@@ -65,14 +60,6 @@ dr4::impl::Text::GetFontSize() const
     return impl_.getCharacterSize();
 }
 
-dr4::Text::VAlign
-dr4::impl::Text::GetVAlign() const
-{
-    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
-
-    return dr4::Text::VAlign::UNKNOWN;
-}
-
 const dr4::Font*
 dr4::impl::Text::GetFont() const
 {
@@ -94,15 +81,54 @@ dr4::impl::Text::DrawOn( dr4::Texture& texture ) const
 }
 
 void
+dr4::impl::Text::updatePosition()
+{
+    sf::FloatRect bounds   = impl_.getLocalBounds();
+    float         offset_y = 0.0f;
+
+    switch ( valign_ )
+    {
+        case dr4::Text::VAlign::TOP:
+            offset_y = -bounds.top;
+            break;
+        case dr4::Text::VAlign::MIDDLE:
+            offset_y = -bounds.top - bounds.height / 2.0f;
+            break;
+        case dr4::Text::VAlign::BOTTOM:
+            offset_y = -bounds.top - bounds.height;
+            break;
+        case dr4::Text::VAlign::BASELINE:
+            offset_y = 0.0f;
+            break;
+        default:
+            offset_y = -bounds.top;
+    }
+
+    impl_.setPosition( logical_pos_.x, logical_pos_.y + offset_y );
+}
+
+void
+dr4::impl::Text::SetVAlign( dr4::Text::VAlign align )
+{
+    valign_ = align;
+    updatePosition();
+}
+
+void
 dr4::impl::Text::SetPos( dr4::Vec2f pos )
 {
-    impl_.setPosition( pos.x, pos.y );
+    logical_pos_ = pos;
+    updatePosition();
 }
 
 dr4::Vec2f
 dr4::impl::Text::GetPos() const
 {
-    const auto& sf_pos = impl_.getPosition();
+    return logical_pos_;
+}
 
-    return { sf_pos.x, sf_pos.y };
+dr4::Text::VAlign
+dr4::impl::Text::GetVAlign() const
+{
+    return valign_;
 }

@@ -1,16 +1,16 @@
 #pragma once
 
 #include "pp/canvas.hpp"
-#include "pp/shapes/circle.hpp"
+#include "pp/shapes/text.hpp"
 #include "pp/tool.hpp"
 
 namespace pp {
 namespace impl {
 
-class CircleTool final : public pp::Tool {
+class TextTool final : public pp::Tool {
 
   public:
-    CircleTool( pp::Canvas* cvs );
+    TextTool( pp::Canvas* cvs );
 
     virtual std::string_view
     Icon() const override;
@@ -32,11 +32,15 @@ class CircleTool final : public pp::Tool {
     OnMouseUp( const dr4::Event::MouseButton& evt ) override;
     virtual bool
     OnMouseMove( const dr4::Event::MouseMove& evt ) override;
+    virtual bool
+    OnKeyDown( const dr4::Event::KeyEvent& evt ) override;
+    virtual bool
+    OnText( const dr4::Event::TextEvent& evt ) override;
 
   private:
-    pp::Canvas*       cvs_        = nullptr;
-    pp::impl::Circle* circle_     = nullptr;
-    bool              is_drawing_ = false;
+    pp::Canvas*     cvs_        = nullptr;
+    pp::impl::Text* text_       = nullptr;
+    bool            is_drawing_ = false;
 };
 
 } // namespace impl

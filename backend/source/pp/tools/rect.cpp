@@ -5,7 +5,7 @@
 #include "pp/shapes/rect.hpp"
 #include "pp/tools/rect.hpp"
 
-pp::impl::RectTool::RectTool( ::pp::Canvas* cvs )
+pp::impl::RectTool::RectTool( pp::Canvas* cvs )
     : cvs_( cvs ), is_drawing_( false ), rect_( nullptr )
 {
 }
@@ -31,6 +31,7 @@ pp::impl::RectTool::IsCurrentlyDrawing() const
 void
 pp::impl::RectTool::OnStart()
 {
+    cvs_->SetSelectedShape( nullptr );
 }
 
 void
@@ -65,6 +66,7 @@ pp::impl::RectTool::OnMouseDown( const dr4::Event::MouseButton& evt )
     if ( !is_drawing_ )
     {
         is_drawing_ = true;
+        cvs_->SetSelectedShape( nullptr );
 
         rect_ = new pp::impl::Rect( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_ );
         cvs_->AddShape( rect_ );

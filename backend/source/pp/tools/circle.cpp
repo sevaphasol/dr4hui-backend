@@ -6,8 +6,8 @@
 #include "pp/shapes/circle.hpp"
 #include "pp/tools/circle.hpp"
 
-pp::impl::CircleTool::CircleTool( ::pp::Canvas* cvs )
-    : cvs_( cvs ), is_drawing_( false ), circle_{ nullptr }
+pp::impl::CircleTool::CircleTool( pp::Canvas* cvs )
+    : cvs_( cvs ), is_drawing_( false ), circle_( nullptr )
 {
 }
 
@@ -32,6 +32,7 @@ pp::impl::CircleTool::IsCurrentlyDrawing() const
 void
 pp::impl::CircleTool::OnStart()
 {
+    cvs_->SetSelectedShape( nullptr );
 }
 
 void
@@ -66,6 +67,7 @@ pp::impl::CircleTool::OnMouseDown( const dr4::Event::MouseButton& evt )
     if ( !is_drawing_ )
     {
         is_drawing_ = true;
+        cvs_->SetSelectedShape( nullptr );
 
         circle_ = new pp::impl::Circle( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_ );
         cvs_->AddShape( circle_ );

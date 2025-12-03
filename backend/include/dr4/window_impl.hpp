@@ -12,6 +12,8 @@ namespace impl {
 
 class Window : public dr4::Window {
   public:
+    Window();
+
     virtual void
     SetTitle( const std::string& title ) override final;
     virtual const std::string&
@@ -51,6 +53,12 @@ class Window : public dr4::Window {
     virtual Text*
     CreateText() override final;
 
+    void
+    SetDefaultFont( Font* font ) override final;
+
+    Font*
+    GetDefaultFont() override final;
+
     virtual void
     StartTextInput() override final
     {
@@ -79,6 +87,9 @@ class Window : public dr4::Window {
   private:
     char utf8_buffer_[5];
 
+    double init_time_;
+
+    dr4::Font*       font_;
     dr4::Vec2f       size_;
     std::string      title_;
     sf::RenderWindow impl_;

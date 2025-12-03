@@ -55,9 +55,16 @@ class Text : public dr4::Text {
     }
 
   private:
+    void
+    updatePosition();
+
+  private:
     std::string     string_;
     dr4::impl::Font font_;
     sf::Text        impl_;
+
+    Vec2f             logical_pos_ = { 0, 0 };
+    dr4::Text::VAlign valign_      = dr4::Text::VAlign::BASELINE;
 };
 
 } // namespace impl
