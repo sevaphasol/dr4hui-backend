@@ -35,6 +35,8 @@ class TextTool final : public pp::Tool {
     virtual bool
     OnKeyDown( const dr4::Event::KeyEvent& evt ) override;
     virtual bool
+    OnKeyUp( const dr4::Event::KeyEvent& evt ) override;
+    virtual bool
     OnText( const dr4::Event::TextEvent& evt ) override;
 
   private:

@@ -92,18 +92,44 @@ pp::impl::TextTool::OnMouseDown( const dr4::Event::MouseButton& evt )
 bool
 pp::impl::TextTool::OnMouseUp( const dr4::Event::MouseButton& evt )
 {
+    if ( !is_drawing_ )
+    {
+        return false;
+    }
+
     return text_->OnMouseUp( evt );
 }
 
 bool
 pp::impl::TextTool::OnMouseMove( const dr4::Event::MouseMove& evt )
 {
-    return true;
+    if ( !is_drawing_ )
+    {
+        return false;
+    }
+
+    return text_->OnMouseMove( evt );
 }
 
 bool
 pp::impl::TextTool::OnKeyDown( const dr4::Event::KeyEvent& evt )
 {
+    if ( !is_drawing_ )
+    {
+        return false;
+    }
+
+    return text_->OnKeyDown( evt );
+}
+
+bool
+pp::impl::TextTool::OnKeyUp( const dr4::Event::KeyEvent& evt )
+{
+    if ( !is_drawing_ )
+    {
+        return false;
+    }
+
     return text_->OnKeyUp( evt );
 }
 
