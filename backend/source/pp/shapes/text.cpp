@@ -1,21 +1,30 @@
 #include <cassert>
+#include <cctype>
 #include <cmath>
 #include <iostream>
+#include <string_view>
 
+#include "dr4/event.hpp"
+#include "dr4/keycodes.hpp"
 #include "dr4/math/rect.hpp"
 #include "dr4/math/vec2.hpp"
 #include "pp/shapes/text.hpp"
+#include "pp/tools/text.hpp"
 
-pp::impl::Text::Text( dr4::Window* window, const ::pp::ControlsTheme& theme, ::pp::Canvas* cvs )
+pp::impl::Text::Text( dr4::Window*               window,
+                      const ::pp::ControlsTheme& theme,
+                      pp::Canvas*                cvs,
+                      pp::impl::TextTool*        text_tool )
     : rect_( window->CreateRectangle() ),
       text_( window->CreateText() ),
       cursor_( window->CreateRectangle() ),
       selection_rect_( window->CreateRectangle() ),
-      cvs_( cvs )
+      cvs_( cvs ),
+      text_tool_( text_tool )
 {
     rect_->SetBorderThickness( RectBorderThickness );
     rect_->SetBorderColor( { 118, 185, 0 } );
-    rect_->SetFillColor( { 0, 0, 0 } );
+    rect_->SetFillColor( cvs_->GetControlsTheme().shapeColor );
 
     text_->SetFont( window->GetDefaultFont() );
     text_->SetColor( { 255, 255, 255 } );
@@ -38,11 +47,16 @@ pp::impl::Text::OnMouseDown( const dr4::Event::MouseButton& evt )
     {
         if ( is_drawing_ )
         {
-            insertCursor( evt );
+            insertCursor( evt.pos );
+            clearSelection();
+            is_selecting_ = true;
+        } else
+        {
+            is_dragged_ = true;
         }
 
         OnSelect();
-        is_dragged_ = true;
+
         return true;
     }
 
@@ -57,8 +71,11 @@ pp::impl::Text::OnMouseUp( const dr4::Event::MouseButton& evt )
         return false;
     }
 
-    if ( is_drawing_ )
+    if ( is_drawing_ && is_selecting_ )
     {
+        is_selecting_     = false;
+        selection_active_ = ( selection_pos_ != cursor_pos_ );
+        return true;
     }
 
     is_dragged_ = false;
@@ -69,6 +86,15 @@ pp::impl::Text::OnMouseUp( const dr4::Event::MouseButton& evt )
 bool
 pp::impl::Text::OnMouseMove( const dr4::Event::MouseMove& evt )
 {
+    if ( is_drawing_ && is_selecting_ )
+    {
+        insertCursor( evt.pos );
+        selection_active_ = ( selection_pos_ != cursor_pos_ );
+        updateRect();
+
+        return true;
+    }
+
     if ( is_dragged_ )
     {
         SetPos( GetPos() + evt.rel );
@@ -83,25 +109,94 @@ pp::impl::Text::OnKeyDown( const dr4::Event::KeyEvent& evt )
 {
     if ( evt.sym == dr4::KEYCODE_BACKSPACE )
     {
-        Backspace();
+        ( ( evt.mods & dr4::KEYMOD_CTRL ) != 0 ) ? ctrlBackspace() : backspace();
         return true;
     }
 
     if ( evt.sym == dr4::KEYCODE_DELETE )
     {
-        Delete();
+        ( ( evt.mods & dr4::KEYMOD_CTRL ) != 0 ) ? ctrlDel() : del();
+
         return true;
     }
 
-    if ( evt.sym == dr4::KEYCODE_LEFT )
+    if ( evt.sym == dr4::KEYCODE_LEFT || evt.sym == dr4::KEYCODE_RIGHT )
     {
-        DecrementCursor();
+        size_t old_pos = cursor_pos_;
+
+        bool shift = ( evt.mods & dr4::KEYMOD_SHIFT ) != 0;
+
+        if ( shift )
+        {
+            if ( !selection_active_ )
+            {
+                selection_pos_    = old_pos;
+                selection_active_ = true;
+            }
+        } else
+        {
+            clearSelection();
+        }
+
+        if ( ( evt.mods & dr4::KEYMOD_CTRL ) != 0 )
+        {
+            ( evt.sym == dr4::KEYCODE_LEFT ) ? moveCursorWordLeft() : moveCursorWordRight();
+        } else
+        {
+            ( evt.sym == dr4::KEYCODE_LEFT ) ? decrementCursor() : incrementCursor();
+        }
+
+        if ( selection_active_ && selection_pos_ == cursor_pos_ )
+        {
+            clearSelection();
+        }
+
+        cursor_visible_         = true;
+        cursor_last_blink_time_ = cvs_->GetWindow()->GetTime();
+
         return true;
     }
 
-    if ( evt.sym == dr4::KEYCODE_RIGHT )
+    if ( ( evt.mods & dr4::KEYMOD_CTRL ) != 0 )
     {
-        IncrementCursor();
+        switch ( evt.sym )
+        {
+            case dr4::KEYCODE_X:
+                ctrlX();
+                break;
+            case dr4::KEYCODE_C:
+                ctrlC();
+                break;
+            case dr4::KEYCODE_V:
+                ctrlV();
+                break;
+            case dr4::KEYCODE_A:
+                ctrlA();
+                break;
+            case dr4::KEYCODE_W:
+                ctrlW();
+                break;
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+
+bool
+pp::impl::Text::OnText( const dr4::Event::TextEvent& evt )
+{
+    if ( evt.unicode != nullptr )
+    {
+        auto ch = *evt.unicode;
+
+        if ( ( std::iscntrl( ch ) != 0 ) && ch != '\n' && ch != '\t' && ch != '\r' )
+        {
+            return false;
+        }
+
+        put( *evt.unicode );
         return true;
     }
 
@@ -142,6 +237,11 @@ pp::impl::Text::DrawOn( dr4::Texture& texture ) const
     if ( is_drawing_ )
     {
         rect_->DrawOn( texture );
+    }
+
+    if ( is_drawing_ && selection_active_ )
+    {
+        selection_rect_->DrawOn( texture );
     }
 
     text_->DrawOn( texture );
@@ -204,11 +304,8 @@ pp::impl::Text::updateRect()
     const dr4::Font* font      = text_->GetFont();
     float            font_size = text_->GetFontSize();
 
-    float raw_ascent  = 1.3 * font->GetAscent( font_size );
-    float raw_descent = 1.3 * font->GetDescent( font_size );
-
-    float asc_up  = std::fabs( raw_ascent );
-    float desc_dn = std::fabs( raw_descent );
+    float asc_up  = std::fabs( 1.3 * font->GetAscent( font_size ) );
+    float desc_dn = std::fabs( 1.3 * font->GetDescent( font_size ) );
 
     float line_height = asc_up + desc_dn;
 
@@ -221,17 +318,48 @@ pp::impl::Text::updateRect()
     const float cursor_width = 2.0f;
     cursor_->SetSize( { cursor_width, line_height } );
     cursor_->SetPos( { getCursorX(), baseline.y } );
+
+    if ( hasSelection() )
+    {
+        auto [begin, end] = getSelectionRange();
+
+        tmp_string_ = text_->GetText();
+
+        float start_w = 0.0f;
+        if ( begin == 0 )
+        {
+            start_w = 0.0f;
+        } else
+        {
+            text_->SetText( std::string( tmp_string_.data(), begin ) );
+            start_w = text_->GetBounds().x;
+        }
+
+        float end_w = 0.0f;
+        text_->SetText( std::string( tmp_string_.data(), end ) );
+        end_w = text_->GetBounds().x;
+
+        text_->SetText( tmp_string_ );
+
+        float sel_x = baseline.x + start_w;
+        float sel_y = baseline.y;
+        float sel_w = end_w - start_w;
+        float sel_h = line_height;
+
+        selection_rect_->SetPos( { sel_x, sel_y } );
+        selection_rect_->SetSize( { sel_w, sel_h } );
+    }
 }
 
 void
-pp::impl::Text::Insert( char c )
+pp::impl::Text::put( char c )
 {
     if ( hasSelection() )
     {
         auto [begin, end] = getSelectionRange();
         string_.erase( begin, end - begin );
-        cursor_pos_       = begin;
-        selection_active_ = false;
+        cursor_pos_ = begin;
+        clearSelection();
     }
 
     string_.insert( string_.begin() + cursor_pos_, c );
@@ -241,7 +369,7 @@ pp::impl::Text::Insert( char c )
 }
 
 void
-pp::impl::Text::Backspace()
+pp::impl::Text::backspace()
 {
     if ( string_.empty() )
     {
@@ -252,8 +380,8 @@ pp::impl::Text::Backspace()
     {
         auto [begin, end] = getSelectionRange();
         string_.erase( begin, end - begin );
-        cursor_pos_       = begin;
-        selection_active_ = false;
+        cursor_pos_ = begin;
+        clearSelection();
         text_->SetText( string_ );
         updateRect();
         return;
@@ -271,7 +399,7 @@ pp::impl::Text::Backspace()
 }
 
 void
-pp::impl::Text::Delete()
+pp::impl::Text::del()
 {
     if ( string_.empty() )
     {
@@ -282,8 +410,8 @@ pp::impl::Text::Delete()
     {
         auto [begin, end] = getSelectionRange();
         string_.erase( begin, end - begin );
-        cursor_pos_       = begin;
-        selection_active_ = false;
+        cursor_pos_ = begin;
+        clearSelection();
         text_->SetText( string_ );
         updateRect();
         return;
@@ -300,7 +428,7 @@ pp::impl::Text::Delete()
 }
 
 void
-pp::impl::Text::DecrementCursor()
+pp::impl::Text::decrementCursor()
 {
     if ( cursor_pos_ != 0 )
     {
@@ -311,7 +439,7 @@ pp::impl::Text::DecrementCursor()
 }
 
 void
-pp::impl::Text::IncrementCursor()
+pp::impl::Text::incrementCursor()
 {
     if ( cursor_pos_ != string_.size() )
     {
@@ -345,14 +473,11 @@ pp::impl::Text::getCursorX() const
 }
 
 void
-pp::impl::Text::insertCursor( const dr4::Event::MouseButton& evt )
+pp::impl::Text::insertCursor( dr4::Vec2f pos )
 {
-    const dr4::Window* win = cvs_->GetWindow();
-
-    dr4::Vec2f mouse    = evt.pos;
     dr4::Vec2f text_pos = text_->GetPos();
 
-    float local_x = mouse.x - text_pos.x;
+    float local_x = pos.x - text_pos.x;
 
     if ( local_x <= 0.0f || string_.empty() )
     {
@@ -418,4 +543,180 @@ void
 pp::impl::Text::clearSelection()
 {
     selection_active_ = false;
+    selection_pos_    = cursor_pos_;
+}
+
+std::string
+pp::impl::Text::copySelected() const
+{
+    if ( !hasSelection() )
+    {
+        return "";
+    }
+
+    auto [begin, end] = getSelectionRange();
+
+    return string_.substr( begin, end - begin );
+}
+
+void
+pp::impl::Text::pasteFromClipboard()
+{
+    const std::string& clip = text_tool_->GetClipboard();
+
+    if ( hasSelection() )
+    {
+        auto [begin, end] = getSelectionRange();
+        string_.erase( begin, end - begin );
+        cursor_pos_ = begin;
+        clearSelection();
+    }
+
+    string_.insert( cursor_pos_, clip );
+    cursor_pos_ += clip.size();
+    text_->SetText( string_ );
+    updateRect();
+}
+
+void
+pp::impl::Text::eraseSelected()
+{
+    auto [begin, end] = getSelectionRange();
+    string_.erase( begin, end - begin );
+    cursor_pos_ = begin;
+    clearSelection();
+    text_->SetText( string_ );
+    updateRect();
+}
+
+size_t
+pp::impl::Text::getLeftWordPos()
+{
+    size_t pos = cursor_pos_;
+
+    if ( pos == 0 )
+    {
+        return pos;
+    }
+
+    while ( pos > 0 && ( std::isspace( string_[pos - 1] ) != 0 ) )
+    {
+        --pos;
+    }
+
+    while ( pos > 0 && ( std::isspace( string_[pos - 1] ) == 0 ) )
+    {
+        --pos;
+    }
+
+    return pos;
+}
+
+size_t
+pp::impl::Text::getRightWordPos()
+{
+    size_t pos = cursor_pos_;
+
+    size_t n = string_.size();
+    if ( pos >= n )
+    {
+        return pos;
+    }
+
+    while ( pos < n && ( std::isspace( string_[pos] ) != 0 ) )
+    {
+        ++pos;
+    }
+
+    while ( pos < n && ( std::isspace( string_[pos] ) == 0 ) )
+    {
+        ++pos;
+    }
+
+    return pos;
+}
+
+void
+pp::impl::Text::moveCursorWordLeft()
+{
+    cursor_pos_ = getLeftWordPos();
+    updateRect();
+}
+
+void
+pp::impl::Text::moveCursorWordRight()
+{
+    cursor_pos_ = getRightWordPos();
+    updateRect();
+}
+
+void
+pp::impl::Text::ctrlBackspace()
+{
+    size_t start_pos = getLeftWordPos();
+    if ( start_pos < cursor_pos_ )
+    {
+        size_t length = cursor_pos_ - start_pos;
+        string_.erase( start_pos, length );
+        cursor_pos_ = start_pos;
+        clearSelection();
+        text_->SetText( string_ );
+        updateRect();
+    }
+}
+
+void
+pp::impl::Text::ctrlDel()
+{
+    size_t end_pos = getRightWordPos();
+    if ( end_pos > cursor_pos_ )
+    {
+        size_t length = end_pos - cursor_pos_;
+        string_.erase( cursor_pos_, length );
+        clearSelection();
+        text_->SetText( string_ );
+        updateRect();
+    }
+}
+
+void
+pp::impl::Text::ctrlX()
+{
+    text_tool_->SetClipboard( copySelected() );
+    text_tool_->SetClipboardSingleUse( true );
+    eraseSelected();
+}
+
+void
+pp::impl::Text::ctrlC()
+{
+    text_tool_->SetClipboard( copySelected() );
+    text_tool_->SetClipboardSingleUse( false );
+}
+
+void
+pp::impl::Text::ctrlV()
+{
+    pasteFromClipboard();
+
+    if ( text_tool_->GetClipboardSingleUse() )
+    {
+        text_tool_->GetClipboard().erase();
+    }
+}
+
+void
+pp::impl::Text::ctrlA()
+{
+    selection_active_ = true;
+    selection_pos_    = 0;
+    cursor_pos_       = string_.end() - string_.begin();
+    updateRect();
+}
+
+void
+pp::impl::Text::ctrlW()
+{
+    ctrlBackspace();
+    updateRect();
 }

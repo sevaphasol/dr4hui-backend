@@ -39,10 +39,24 @@ class TextTool final : public pp::Tool {
     virtual bool
     OnText( const dr4::Event::TextEvent& evt ) override;
 
+    void
+    SetClipboard( const std::string& str );
+    const std::string&
+    GetClipboard() const;
+    std::string&
+    GetClipboard();
+    void
+    SetClipboardSingleUse( bool state );
+    bool
+    GetClipboardSingleUse() const;
+
   private:
     pp::Canvas*     cvs_        = nullptr;
     pp::impl::Text* text_       = nullptr;
     bool            is_drawing_ = false;
+
+    std::string clipboard_;
+    bool        clipboard_single_use_;
 };
 
 } // namespace impl

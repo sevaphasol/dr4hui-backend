@@ -13,9 +13,14 @@
 namespace pp {
 namespace impl {
 
+class TextTool;
+
 class Text final : public pp::Shape {
   public:
-    Text( dr4::Window* window, const pp::ControlsTheme& theme, pp::Canvas* cvs );
+    Text( dr4::Window*             window,
+          const pp::ControlsTheme& theme,
+          pp::Canvas*              cvs,
+          pp::impl::TextTool*      text_tool );
 
     bool
     OnMouseDown( const dr4::Event::MouseButton& evt ) override final;
@@ -25,6 +30,10 @@ class Text final : public pp::Shape {
     OnMouseMove( const dr4::Event::MouseMove& evt ) override final;
     bool
     OnKeyDown( const dr4::Event::KeyEvent& evt ) override final;
+    // virtual bool
+    // OnKeyUp( const dr4::Event::KeyEvent& evt ) override final;
+    virtual bool
+    OnText( const dr4::Event::TextEvent& evt ) override final;
 
     void
     OnSelect() override final;
@@ -41,18 +50,40 @@ class Text final : public pp::Shape {
 
     void
     SetIsDrawing( bool state );
-    void
-    Insert( char c );
-    void
-    Backspace();
-    void
-    Delete();
-    void
-    DecrementCursor();
-    void
-    IncrementCursor();
 
   private:
+    void
+    put( char c );
+
+    void
+    backspace();
+    void
+    ctrlBackspace();
+    void
+    del();
+    void
+    ctrlDel();
+
+    void
+    ctrlX();
+    void
+    ctrlC();
+    void
+    ctrlV();
+    void
+    ctrlA();
+    void
+    ctrlW();
+
+    void
+    decrementCursor();
+    void
+    incrementCursor();
+    void
+    moveCursorWordLeft();
+    void
+    moveCursorWordRight();
+
     bool
     onMe( dr4::Vec2f rel ) const;
 
@@ -60,12 +91,24 @@ class Text final : public pp::Shape {
     updateRect();
 
     void
-    insertCursor( const dr4::Event::MouseButton& evt );
+    insertCursor( dr4::Vec2f pos );
     float
     getCursorX() const;
 
     std::pair<size_t, size_t>
     getSelectionRange() const;
+
+    std::string
+    copySelected() const;
+    void
+    pasteFromClipboard();
+    void
+    eraseSelected();
+
+    size_t
+    getLeftWordPos();
+    size_t
+    getRightWordPos();
 
     bool
     hasSelection() const;
@@ -83,7 +126,8 @@ class Text final : public pp::Shape {
     std::unique_ptr<dr4::Text>      text_;
     std::unique_ptr<dr4::Rectangle> rect_;
 
-    pp::Canvas* cvs_ = nullptr;
+    pp::Canvas*         cvs_       = nullptr;
+    pp::impl::TextTool* text_tool_ = nullptr;
 
     std::unique_ptr<dr4::Rectangle> cursor_;
 

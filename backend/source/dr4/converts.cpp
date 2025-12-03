@@ -40,22 +40,24 @@ dr4::impl::detail::fromSFML( sf::Mouse::Button button )
 dr4::KeyMode
 dr4::impl::detail::fromSFML( sf::Event::KeyEvent event )
 {
+    dr4::KeyMode mods = dr4::KeyMode::KEYMOD_NONE;
+
     if ( event.alt )
     {
-        return dr4::KeyMode::KEYMOD_ALT;
+        mods = static_cast<dr4::KeyMode>( mods | dr4::KeyMode::KEYMOD_ALT );
     }
 
     if ( event.shift )
     {
-        return dr4::KeyMode::KEYMOD_SHIFT;
+        mods = static_cast<dr4::KeyMode>( mods | dr4::KeyMode::KEYMOD_SHIFT );
     }
 
     if ( event.control )
     {
-        return dr4::KeyMode::KEYMOD_CTRL;
+        mods = static_cast<dr4::KeyMode>( mods | dr4::KeyMode::KEYMOD_CTRL );
     }
 
-    return dr4::KeyMode::KEYMOD_NONE;
+    return mods;
 }
 
 #define CASE_SFML_KEYBOARD_KEY_TO_DR4_KEYBOARD_KEY( guiType, huiType )                             \

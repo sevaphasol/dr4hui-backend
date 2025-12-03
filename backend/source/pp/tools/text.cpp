@@ -43,6 +43,7 @@ pp::impl::TextTool::OnBreak()
     {
         assert( text_ );
         is_drawing_ = false;
+        text_->SetIsDrawing( false );
         cvs_->DelShape( text_ );
     }
 }
@@ -53,6 +54,7 @@ pp::impl::TextTool::OnEnd()
     if ( is_drawing_ )
     {
         is_drawing_ = false;
+        text_->SetIsDrawing( false );
         text_->OnSelect();
     }
 }
@@ -69,7 +71,7 @@ pp::impl::TextTool::OnMouseDown( const dr4::Event::MouseButton& evt )
     {
         is_drawing_ = true;
         cvs_->SetSelectedShape( nullptr );
-        text_ = new pp::impl::Text( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_ );
+        text_ = new pp::impl::Text( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_, this );
         cvs_->AddShape( text_ );
         text_->SetPos( evt.pos );
         text_->SetIsDrawing( true );
@@ -141,16 +143,35 @@ pp::impl::TextTool::OnText( const dr4::Event::TextEvent& evt )
         return false;
     }
 
-    if ( evt.unicode != nullptr )
-    {
-        if ( ( std::isalpha( *evt.unicode ) == 0 ) && ( std::isdigit( *evt.unicode ) == 0 ) )
-        {
-            return false;
-        }
+    return text_->OnText( evt );
+}
 
-        text_->Insert( *evt.unicode );
-        return true;
-    }
+void
+pp::impl::TextTool::SetClipboard( const std::string& str )
+{
+    clipboard_ = str;
+}
 
-    return false;
+const std::string&
+pp::impl::TextTool::GetClipboard() const
+{
+    return clipboard_;
+}
+
+std::string&
+pp::impl::TextTool::GetClipboard()
+{
+    return clipboard_;
+}
+
+void
+pp::impl::TextTool::SetClipboardSingleUse( bool state )
+{
+    clipboard_single_use_ = state;
+}
+
+bool
+pp::impl::TextTool::GetClipboardSingleUse() const
+{
+    return clipboard_single_use_;
 }
