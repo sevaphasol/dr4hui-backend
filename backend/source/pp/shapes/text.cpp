@@ -224,8 +224,6 @@ pp::impl::Text::SetIsDrawing( bool state )
 void
 pp::impl::Text::DrawOn( dr4::Texture& texture ) const
 {
-    std::cerr << cvs_->GetSelectedShape() << std::endl;
-
     if ( is_drawing_ || cvs_->GetSelectedShape() == this )
     {
         rect_->DrawOn( texture );
