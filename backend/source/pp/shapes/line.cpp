@@ -9,7 +9,7 @@ pp::impl::Line::Line( dr4::Window* window, const pp::ControlsTheme& theme, pp::C
     : line_( window->CreateLine() ), cvs_( cvs )
 {
     line_->SetThickness( LineThickness );
-    line_->SetColor( theme.lineColor );
+    line_->SetColor( theme.shapeFillColor );
 
     for ( auto& rsz_circle : rsz_circles_ )
     {

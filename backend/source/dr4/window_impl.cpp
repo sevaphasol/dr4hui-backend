@@ -138,25 +138,25 @@ dr4::impl::Window::CreateCircle()
 }
 
 void
-dr4::impl::Window::SetDefaultFont( dr4::Font* font )
+dr4::impl::Window::SetDefaultFont( const dr4::Font* font )
 {
     font_ = font;
 }
 
-dr4::Font*
+const dr4::Font*
 dr4::impl::Window::GetDefaultFont()
 {
     return font_;
 }
 
 void
-dr4::impl::Window::SetClipBoard( const std::string& string )
+dr4::impl::Window::SetClipboard( const std::string& string )
 {
     sf::Clipboard::setString( string );
 }
 
 std::string
-dr4::impl::Window::GetClipBoard()
+dr4::impl::Window::GetClipboard()
 {
     return sf::Clipboard::getString();
 }

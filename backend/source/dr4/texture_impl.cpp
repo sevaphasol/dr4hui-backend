@@ -112,3 +112,11 @@ dr4::impl::Texture::DrawOn( dr4::Texture& texture ) const
 
     my_texture.GetImpl().draw( sprite );
 }
+
+dr4::Image*
+dr4::impl::Texture::GetImage() const
+{
+    std::cerr << "Sorry, " << __func__ << "unimplemented" << std::endl;
+
+    return nullptr;
+}

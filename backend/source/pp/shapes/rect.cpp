@@ -9,8 +9,8 @@ pp::impl::Rect::Rect( dr4::Window* window, const ::pp::ControlsTheme& theme, ::p
     : rect_( window->CreateRectangle() ), cvs_( cvs )
 {
     rect_->SetBorderThickness( RectBorderThickness );
-    rect_->SetBorderColor( theme.lineColor );
-    rect_->SetFillColor( theme.shapeColor );
+    rect_->SetBorderColor( theme.shapeBorderColor );
+    rect_->SetFillColor( theme.shapeFillColor );
 
     for ( auto& rsz_circle : rsz_circles_ )
     {

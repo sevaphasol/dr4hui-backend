@@ -9,8 +9,8 @@ pp::impl::Circle::Circle( dr4::Window* window, const ::pp::ControlsTheme& theme,
     : circle_( window->CreateCircle() ), cvs_( cvs )
 {
     circle_->SetBorderThickness( CircleBorderThickness );
-    circle_->SetBorderColor( theme.lineColor );
-    circle_->SetFillColor( theme.shapeColor );
+    circle_->SetBorderColor( theme.shapeBorderColor );
+    circle_->SetFillColor( theme.shapeFillColor );
 
     for ( auto& rsz_circle : rsz_circles_ )
     {

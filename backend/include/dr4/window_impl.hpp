@@ -54,15 +54,14 @@ class Window : public dr4::Window {
     CreateText() override final;
 
     void
-    SetDefaultFont( Font* font ) override final;
-
-    Font*
+    SetDefaultFont( const Font* font ) override final;
+    const Font*
     GetDefaultFont() override final;
 
     virtual void
-    SetClipBoard( const std::string& string ) override final;
+    SetClipboard( const std::string& string ) override final;
     virtual std::string
-    GetClipBoard() override final;
+    GetClipboard() override final;
 
     virtual void
     StartTextInput() override final
@@ -94,7 +93,7 @@ class Window : public dr4::Window {
 
     double init_time_;
 
-    dr4::Font*       font_;
+    const dr4::Font* font_;
     dr4::Vec2f       size_;
     std::string      title_;
     sf::RenderWindow impl_;

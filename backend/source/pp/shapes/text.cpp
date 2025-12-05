@@ -17,8 +17,8 @@ pp::impl::Text::Text( dr4::Window* window, const ::pp::ControlsTheme& theme, pp:
       cvs_( cvs )
 {
     rect_->SetBorderThickness( RectBorderThickness );
-    rect_->SetBorderColor( cvs_->GetControlsTheme().lineColor );
-    rect_->SetFillColor( cvs_->GetControlsTheme().shapeColor );
+    rect_->SetBorderColor( cvs_->GetControlsTheme().shapeBorderColor );
+    rect_->SetFillColor( cvs_->GetControlsTheme().shapeFillColor );
 
     text_->SetFont( window->GetDefaultFont() );
     text_->SetColor( { 255, 255, 255 } );
@@ -609,7 +609,7 @@ pp::impl::Text::pasteFromClipboard()
 {
     ctrlS();
 
-    const std::string& clip = cvs_->GetWindow()->GetClipBoard();
+    const std::string& clip = cvs_->GetWindow()->GetClipboard();
 
     if ( hasSelection() )
     {
@@ -735,7 +735,7 @@ pp::impl::Text::ctrlX()
 {
     ctrlS();
 
-    cvs_->GetWindow()->SetClipBoard( copySelected() );
+    cvs_->GetWindow()->SetClipboard( copySelected() );
     eraseSelected();
     refreshCursor();
 }
@@ -743,7 +743,7 @@ pp::impl::Text::ctrlX()
 void
 pp::impl::Text::ctrlC()
 {
-    cvs_->GetWindow()->SetClipBoard( copySelected() );
+    cvs_->GetWindow()->SetClipboard( copySelected() );
     refreshCursor();
 }
 
@@ -980,7 +980,7 @@ pp::impl::Text::OnKeyDownReadOnly( const dr4::Event::KeyEvent& evt )
     {
         if ( evt.sym == dr4::KEYCODE_C )
         {
-            cvs_->GetWindow()->SetClipBoard( copySelected() );
+            cvs_->GetWindow()->SetClipboard( copySelected() );
             return true;
         }
         if ( evt.sym == dr4::KEYCODE_A )

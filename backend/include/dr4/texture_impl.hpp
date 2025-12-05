@@ -42,6 +42,9 @@ class Texture : public dr4::Texture {
     virtual Rect2f
     GetClipRect() const override final;
 
+    virtual dr4::Image*
+    GetImage() const override final;
+
     auto&
     GetImpl() const
     {
