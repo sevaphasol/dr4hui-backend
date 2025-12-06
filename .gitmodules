@@ -1,4 +1,4 @@
 [submodule "interface"]
 	path = interface
 	url = https://github.com/random-username-here/mipt-ded-zemax.git
-	branch = piska-draft1
+	branch = master
