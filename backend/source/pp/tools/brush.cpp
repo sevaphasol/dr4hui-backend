@@ -34,7 +34,9 @@ bool
 pp::impl::BrushTool::OnMouseDown( const dr4::Event::MouseButton& evt )
 {
     if ( evt.button != dr4::MouseButtonType::LEFT )
+    {
         return false;
+    }
 
     brush_ = new pp::impl::BrushShape( cvs_->GetWindow(), cvs_->GetControlsTheme(), cvs_ );
     cvs_->AddShape( brush_ );
@@ -59,7 +61,9 @@ bool
 pp::impl::BrushTool::OnMouseMove( const dr4::Event::MouseMove& evt )
 {
     if ( !is_drawing_ )
+    {
         return false;
+    }
 
     AddSegment( last_pos_, evt.pos );
     last_pos_ = evt.pos;
@@ -69,8 +73,8 @@ pp::impl::BrushTool::OnMouseMove( const dr4::Event::MouseMove& evt )
 void
 pp::impl::BrushTool::AddSegment( dr4::Vec2f from, dr4::Vec2f to )
 {
-    const float brushRadius = pp::impl::BrushShape::BrushRadius;
-    const float maxStep     = brushRadius * 2.0f; // гарантирует перекрытие
+    const float brush_radius = pp::impl::BrushShape::BrushRadius;
+    const float max_step     = brush_radius * 2.0f;
 
     dr4::Vec2f delta  = to - from;
     float      length = std::sqrt( delta.x * delta.x + delta.y * delta.y );
@@ -81,7 +85,7 @@ pp::impl::BrushTool::AddSegment( dr4::Vec2f from, dr4::Vec2f to )
         return;
     }
 
-    int steps = static_cast<int>( std::ceil( length / maxStep ) );
+    int steps = static_cast<int>( std::ceil( length / max_step ) );
     steps     = std::max( 1, steps );
 
     for ( int i = 1; i <= steps; ++i )

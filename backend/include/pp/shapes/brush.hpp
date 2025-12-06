@@ -14,9 +14,6 @@ class BrushShape final : public ::pp::Shape {
   public:
     BrushShape( dr4::Window* window, const pp::ControlsTheme& theme, pp::Canvas* cvs );
 
-    // События мыши — НЕ ПЕРЕОПРЕДЕЛЯЕМ! Кисть не редактируется как единое целое.
-    // (Или можно добавить перемещение всей кисти, если нужно — но пока не будем.)
-
     void
     DrawOn( dr4::Texture& texture ) const override final;
 
@@ -39,7 +36,7 @@ class BrushShape final : public ::pp::Shape {
   private:
     pp::Canvas*             cvs_ = nullptr;
     std::vector<dr4::Vec2f> points_;
-    dr4::Color              brushColor_;
+    dr4::Color              brush_color_;
     dr4::Window*            window_ = nullptr;
 };
 

@@ -63,8 +63,9 @@ class Line : public dr4::Line {
 
     float thickness_ = 1.0f;
 
-    Vec2f start_ = { 0.0f, 0.0f };
-    Vec2f end_   = { 0.0f, 1.0f };
+    Vec2f      start_ = { 0.0f, 0.0f };
+    Vec2f      end_   = { 0.0f, 1.0f };
+    dr4::Vec2f pos_   = { 0.0f, 0.0f };
 };
 
 class Circle : public dr4::Circle {

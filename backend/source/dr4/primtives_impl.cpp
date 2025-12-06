@@ -71,13 +71,13 @@ dr4::impl::Line::GetThickness() const
 void
 dr4::impl::Line::SetPos( dr4::Vec2f pos )
 {
-    SetStart( pos );
+    pos_ = pos;
 }
 
 dr4::Vec2f
 dr4::impl::Line::GetPos() const
 {
-    return start_;
+    return pos_;
 }
 
 void
@@ -94,7 +94,7 @@ dr4::impl::Line::DrawOn( dr4::Texture& texture ) const
 
     auto tex_zero = my_texture.GetZero();
 
-    sf_transform.translate( { tex_zero.x, tex_zero.y } );
+    sf_transform.translate( { pos_.x + tex_zero.x, pos_.y + tex_zero.y } );
 
     my_texture.GetImpl().draw( impl_, sf_transform );
 }
