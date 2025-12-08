@@ -83,6 +83,10 @@ dr4::impl::Window::Draw( const dr4::Texture& texture )
 
     sf_texture.display();
     sf::Sprite sprite( sf_texture.getTexture() );
+
+    auto tex_pos = texture.GetPos();
+
+    sprite.setPosition( tex_pos.x, tex_pos.y );
     impl_.draw( sprite );
 }
 
