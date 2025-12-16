@@ -14,7 +14,7 @@ pp::impl::LineTool::LineTool( pp::Canvas* cvs )
 std::string_view
 pp::impl::LineTool::Icon() const
 {
-    return "L";
+    return "󰕞";
 }
 
 std::string_view

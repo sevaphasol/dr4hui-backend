@@ -14,7 +14,7 @@ pp::impl::CircleTool::CircleTool( pp::Canvas* cvs )
 std::string_view
 pp::impl::CircleTool::Icon() const
 {
-    return "C";
+    return "";
 }
 
 std::string_view

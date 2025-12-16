@@ -12,15 +12,9 @@ class BrushTool final : public pp::Tool {
     BrushTool( pp::Canvas* cvs );
 
     std::string_view
-    Icon() const override
-    {
-        return "B";
-    }
+    Icon() const override;
     std::string_view
-    Name() const override
-    {
-        return "BrushTool";
-    }
+    Name() const override;
     bool
     IsCurrentlyDrawing() const override
     {

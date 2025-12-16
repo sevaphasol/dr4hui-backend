@@ -4,6 +4,17 @@
 
 pp::impl::BrushTool::BrushTool( pp::Canvas* cvs ) : cvs_( cvs ) {}
 
+std::string_view
+pp::impl::BrushTool::Icon() const
+{
+    return "󰃣";
+}
+std::string_view
+pp::impl::BrushTool::Name() const
+{
+    return "BrushTool";
+}
+
 void
 pp::impl::BrushTool::OnStart()
 {

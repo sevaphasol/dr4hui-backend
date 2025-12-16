@@ -15,7 +15,7 @@ pp::impl::TextTool::TextTool( pp::Canvas* cvs )
 std::string_view
 pp::impl::TextTool::Icon() const
 {
-    return "T";
+    return "󰊄";
 }
 
 std::string_view

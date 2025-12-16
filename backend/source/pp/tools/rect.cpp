@@ -13,7 +13,7 @@ pp::impl::RectTool::RectTool( pp::Canvas* cvs )
 std::string_view
 pp::impl::RectTool::Icon() const
 {
-    return "R";
+    return "";
 }
 
 std::string_view

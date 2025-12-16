@@ -2,13 +2,14 @@
 #include "dr4/font_impl.hpp"
 #include "dr4/texture_impl.hpp"
 #include <SFML/Graphics/Text.hpp>
-#include <iostream>
+#include <SFML/System/String.hpp>
+#include <string>
 
 void
 dr4::impl::Text::SetText( const std::string& text )
 {
     string_ = text;
-    impl_.setString( text );
+    impl_.setString( sf::String::fromUtf8( text.begin(), text.end() ) );
 }
 
 void

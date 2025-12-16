@@ -14,6 +14,11 @@
 void
 dr4::impl::Texture::SetSize( dr4::Vec2f size )
 {
+    if ( size.x == 0 || size.y == 0 )
+    {
+        return;
+    }
+
     impl_.create( static_cast<uint>( size.x ), static_cast<uint>( size.y ) );
     impl_.clear( { 0, 0, 0, 0 } );
 }
